@@ -1,0 +1,230 @@
+//*****************友元类*********88
+/*
+在基类中声明为友元类即可
+friend class Remote;
+大多数时候只需要类中的某几个方法成为友元函数，而不需要全部函数
+所以只需要在基类函数中声明友元函数同时考虑声明中含的类必须在编译器中
+已经存在的原则，需要在基类定义之前对友元中含有的类进行声明，当该类中
+含有基类成员时，还需要对基类进行声明。
+class Tv;
+class Remote{函数声明以及含类Tv的友元函数定义};
+class Tv{类成员};
+Remote的内联函数定义；
+*/
+//***********************嵌套类*************
+/*
+在另一个类中声明的类为嵌套类，它通过提供新的类型作用域来避免名称混乱；
+包含类的成员函数可以创建和使用被嵌套的类的对象，而仅当声明位于公有部分
+才能在包含类的外面使用嵌套类，而且必须使用作用域解析运算符。
+嵌套类的访问权限：
+1、作用域
+在私有部分声明，只有公有方法才能访问派生类不能直接访问
+在保护部分声明，在类中可以通过公有方法访问，派生类也可直接访问，但外部世界则不可见；
+在公有部分声明，则允许类中，派生类和外部世界皆可见。
+*/
+//********************异常***********************
+/*
+0为分母时：
+1、调用abort()异常终止
+	头文件<cstdlib>，会向标准错误流(cerr)发送错误消息，终止程序，返回错误值。
+2、返回错误码
+	ostream类的get(void)成员通常返回下一个输入字符的ASCII码，但到达文件尾时，将返回特殊值EOF。
+	头文件<cfloat> 给 DBL_MAX（最大浮点数）;
+*/
+/*
+异常机制：
+1、引发异常
+	程序异常，throw关键字表示引发异常，紧随其后的值指出了异常的特征
+2、使用处理程序捕获异常
+	异常处理程序捕获异常，catch关键字表示捕获异常，随后使位于括号中的类型说明，它指出了异常处理程序
+	要响应的异常处理，然后是花括号括起来的代码块，指出要采取的措施。
+3、使用try块
+	try块标识其中特定的异常可能被激活的代码块，它后面紧跟一个或多个catch块。
+*/
+/*
+将对象用作异常类型：
+有多个catch时，catch 与 throw后的值（对象或字符串）匹配
+优点：可以使用不同的异常类型来区分不同函数在不同情况下引发的异常
+首先执行try部分代码块，调用函数如果异常，按throw跳转路径返回try尾，
+接着匹配catch 后的不同对象执行对应对象的方法，最后执行catch代码块部分。
+注意：noexcept 关键字放在函数后面，表示该函数不会引发异常
+	函数fun()的返回语句将控制权返回到调用fun()的函数
+	throw语句将控制权向上返回到第一个这样的函数：包含能够捕捉相应异常的try-catch组合。
+	应发异常编译器将创建一个临时拷贝，即使异常规范和catch块中指定的是引用。
+	基类引用可以执行派生类对象。catch 基类引用,可以捕获throw 派生对象。
+*/
+/*
+栈解退：
+	假设函数由于出现异常而终止，则程序将释放栈中的内存，但不会在释放栈的第一个返回地址后停止，
+	而是继续释放栈，直到找到一个位于try块中的返回地址。随后，控制权将转到块尾的异常处理程序，
+	而不是函数调用后面的第一条语句。该过程称为栈解退。
+C++通常将信息放在栈中来处理函数调用。具体来说，程序将调用函数的指令的地址（返回地址）放在栈中，
+当被调用的函数执行完毕后，程序将使用该地址来确定从哪里开始继续执行。另外，函数调用将函数参数放到栈中，
+在栈中，这些参数被视为自动变量。如果被调用的函数创建了新的变量，则这些变量也被添加到栈中，如果被调用
+的函数调用了另一函数，后者的信息将被添加在栈中。函数调用结束后，自动变量（对象会调用析构函数）将被释放，
+同时栈顶元素也被释放，因此函数执行完后返回到调用它的指令或函数地址。
+return返回时，返回到函数执行完下一条语句
+throw 跳转到try的尾部。
+*/
+/*
+生命周期：
+对于全域对象，程序一开始，其构造式就先被执行（比程序进入点更早）；
+	程序即将结束前其析构式被执行。MFC 程序就有这样一个全域对象，
+	通常以application object 称呼。
+对于区域对象，当对象诞生时，其构造式被执行；当程序流程将离开该对象的
+	存活范围（以至于对象将毁灭），其析构式被执行。
+对于静态（static）对象，当对象诞生时其构造式被执行；当程序将结束时（此
+	对象因而将遭致毁灭）其析构式才被执行，但比全域对象的析构式早一步执
+	行。
+对于以new 方式产生出来的区域对象，当对象诞生时其构造式被执行。析构
+	式则在对象被delete 时执行。
+*/
+/*
+内存分配：
+堆指：（满足堆性质的）优先队列的一种数据结构，第1个元素有最高的优先权；
+栈指：满足先进后出的性质的数学或数据结构。
+从静态存储区分配：此时的内存在程序编译的时候已经分配好，并且在程序的整个运行期间都存在。全局变量，static变量等在此存储
+	全局对象在编译时即分配内存并初始化，静态局部变量在程序第一次运行到它的表达式定义时才分配内存与初始化。
+在栈区分配：相关代码执行时创建，执行结束时被自动释放。（自动变量）局部变量在此存储。栈内存分配运算内置于处理器的指令集中，效率高，但容量有限
+在堆区分配：动态分配内存。用new/malloc时开辟，delete/free时释放。生存期由用户指定，灵活。但有内存泄露等问题
+*/
+//*********************************************exception类异常**********************************************
+/*
+exception类：
+头文件：
+	#include<exception>
+含有虚方法what()返回一个字符串，可以在exception的派生类中定义。
+	class bad_hmean :public std::exception{const char* what(){return "错误信息1";}}
+	class bad_gmean :public std::exception{const char* what(){return "错误信息2";}}
+如果想要以不同的方式处理这些派生而来的异常，可以在同一个基类处理程序捕获
+try{}catch(std::exception & e){处理程序}
+*/
+/*
+stdexcept异常类：
+头文件：
+	# include <stdexcept>
+定义了其他几个异常类，都是以公有方式从exception派生而来的。
+典型的有logic_error,和runtime_error
+1.logic_error
+	class logic_error : public exception{
+	public:
+	explicit logic_error(const string & what_arg);
+	……
+	}
+	class domain_error : public logic_error{
+	public:
+	explicit domain_error(const string & what_arg)
+	……
+	}
+这两个类的构造函数接收一个string对象作为参数，该参数提供了方法what()返回的字符数据。
+可以被用作两个派生类系列的基类，logic_error描述了典型的逻辑错误
+	domain_error:函数参数（定义域）的值不在定义域内。
+	invalid_argument:函数传递了一个意料之外的错误，如传入应该是0或1，却传入除这两字符以外的其他参数
+	length_error:没有足够的空间执行所需要的操作。
+	out_of_bounds:指示索引错误。
+2.runtime_error
+该异常系列描述了可能在运行期间发生但难以预计和防范的错误。
+	underflow_error:浮点数超过最小非零值
+	overflow_error:整型和浮点型上溢出
+	range_error:没有溢出，但是不在函数允许范围之内。
+捕获：
+	try{}
+	catch(out_of_bounds &oe){……}//catch out_of_bounds error
+	catch(logic_error &oe){……}//catch remaining logic_error family
+	catch(exception &oe){……}//catch runtime_error,exception objects
+*/
+/*
+1、bad_alloc异常与new:
+头文件：
+# include<new>
+使用new导致的内存分配问题，继承的是exception。
+catch(bad_alloc &a){处理方法；cout<<a.what()<<endl;}
+2、空指针与new
+在new失败时可以选择返回空指针
+int * pi=new (std::nothrow)int [800];
+if(pi==0){异常处理};
+栈解退与内存分配：
+void test(int n)
+{
+	double *ar=new double[n];
+	……
+	try{
+	if(oh_no)
+		throw exception();
+	}
+//没有这段代码的话，在栈解退时，new申请的内存不会被释放
+//	catch(exception &ex)
+//	{
+//		delete [] ar;
+//		throw;
+//	}
+	delete []ar;
+	return;
+}
+*/
+/*
+1.异常未被捕获：
+在默认情况下，将导致程序异常终止。
+异常未被捕获时，一般是调用terminate(),默认terminate()调用abort()函数。
+可以使用set_terminate()来设置；
+# include <exception>
+typedef void(*terminate_handler)();
+terminate_handler set_terminate(terminate_handler f) throw();//c++98
+terminate_handler set_terminate(terminate_handler f) noexcept();//c++11
+void terminate();//c++98
+void terminate()noexcept;//c++11
+	其中typedef 使terminate_handler成为这样一种类型的名称：指向没有参数和返回值的函数的指针。
+	set_terminate()函数将不带任何参数且返回值类型为void的函数的地址/名称做参数，并返回改函数地址
+set_terminate(myquit);//如果异常没被捕获将触发terminate(),随后调用myquit()
+void myquit(){cout<<"terminate due to uncaught exception";exit(5);}
+2.异常不符合异常规范
+void unexpected();也会调用terminate()函数以及abort(),或自定义。
+# include <exception>
+typedef void(*unexpected_handler)();
+unexpected_handler set_unexpected(unexpected_handler f) throw();//c++98
+unexpected_handler set_unexpected(unexpected_handler f) noexcept();//c++11
+void unexpected();//c++98
+void unexpected()noexcept;//c++11
+unexpected_handler()比terminate_handle()更严格
+	如果新引发的异常与异常规范不匹配，如果原异常规范没有bad_exception类型，则调用terminate()
+	若有，则不匹配的异常被std::bad_exception替代。
+void myunexpection(){throw std::bad_expection;//or just throw}
+set_unexpected(myunexpected);
+try{}catch("1"){……}catch(bad_expection &ex){……}
+*/
+//*************************RTTI(runtime type idenfication)****************
+/*
+RTTI：在程序运行期间确定对象的类型提供一种标准方式。
+dynamic_cast:将使用一个指向基类的指针生成一个指向派生类的指针，否则，该运算符返回0--空指针
+typeid:返回一个指出对象类型的值
+type_info:结构存储了有关特定类型的信息。
+1、dynamic_cast:
+	可以回答“是否可以安全地把对象的地址赋给特定类型的指针”
+	Superb * pm=dynamic<Superb *>(pg)//pg能否转换为Superb对象类型
+2、typeid:
+	typeid运算符返回一个对type_info对象的引用。
+3、type_info：
+	重载了==与！=，以便对对象的类型(显示比较，不支持基类隐式转换)进行比较，一般都包含一个name成员，
+	返回一个随实现而异的字符串，通常（并不一定）是类的名称。
+*/
+//***********************类型转换*********************
+/*
+为了防止一些松散的类型转换导致程序出错，使用以下规范：
+dynamic_cast:一般是类层次的向上转换
+	dynamic_cast<type_name>(expression);//type_name:int class_name,class_name *,char*,……
+const_cast:用于执行只有一种用途的类型转换，即改变值为const/volatile，或删除const标签
+	const_cast<type_name>(expression);//type_name与expression类型要相同
+	去掉const属性：const_case<int*> (&num)，常用，因为不能把一个const变量直接赋给一个非const变量，必须要转换。
+	变量本身的const属性是不能去除的，要想修改变量的值，一般是去除指针（或引用）的const属性，再进行间接修改。
+	加上const属性：const int* k = const_case<const int*>(j)，一般很少用，因为可以把一个非const变量直接赋给一个const变量，比如：const int* k = j;
+static_cast:支持向上转换，向下转换时会向另一方向转换，也是合法的。
+	枚举转换整型，double2int,float2long
+reinterpret_cast:天生危险的类型转换，不允许删除const
+	依赖于底层编程技术，是不可移植的，受数据长度和内存限制。
+	struct dat {short a;short b};
+	long value =0xA2234B76;
+	dat * pd=reinterpret_cast<dat *>(&value);
+	cout<<hex<<pd->a;//display first 2 bytes of value.
+	
+
+*/
