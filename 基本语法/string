@@ -1,0 +1,32 @@
+# include <iostream>
+# include <string>//这里不能用cstring,不然string输出用s.c_str()
+int main2()
+{
+	using namespace std;
+	char c1[20] = "jaguar";
+	char c2[20];
+	string str1 = "panther";
+	string str2;
+	string str3;
+	//cout << "Enter a kind of feline: ";
+	//cin >> c2;
+	//cout << "Enter another kind feline: ";
+	//cin >> str2;
+	str2 = str1;
+	str3 += str2;
+	strcpy_s(c2, c1);//字符数组操作
+	strcat_s(c1,"my");
+	int a =strlen(c1);
+	int b = str1.size();
+	cout << "Display the arry of char and sring...\n";
+	cout << "c1: " << c1<<endl << "c2: " << c2 << endl;
+	cout << "str1: " << str1<<"\n" << "str2: " << str2 << endl;
+	cout << "str3: " << str3 << endl;
+	cout << "The length of c1 is: " << a << endl;
+	cout << "The length of str1 is: " << b << endl;
+	system("pause");
+	
+
+
+	return 0;
+}
