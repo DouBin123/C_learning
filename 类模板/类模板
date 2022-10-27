@@ -1,0 +1,173 @@
+//*************************类模版（兼容性错误）*************************
+/*(<>中定义类型的关键字有class,typename,可在一个模版中含有多种类型变量)
+函数模版：
+1、定义
+	template <typename  Type>//template <typename T1,typename T2=int>(默认参数)
+	返回值类型  函数名(形参)//这里的Typename T,相当于# Typedefine Typename T 
+	{
+		函数体;
+	}
+2、具体化/实例化：在使用时在函数名后加<typename>即可
+使用模版显式：返回值类型  函数名<typename>(实参);
+			:返回值类型  函数名<>(实参);
+自动识别：返回值类型 函数名（实参）;
+未知？推测类型：
+	void ft(T1 x, T2 y)
+	{
+	decltype(x + y) z = x + y;//已知x与y类型，z与(x+y)类型一致
+
+	}
+类模版：
+	template <class  Type>//Type为类成员中的某一种类型
+	class  类名
+	{
+	类成员定义;
+	}
+使用：
+	类名<typename>  对象;
+类方法定义：
+	template <class  Type>//Type为类成员中的某一种类型
+	返回值类型 类名<Type>::方法名()
+	{	
+	方法体;
+	}
+即与不用模版相比，在定义前加：template <class Type>,将域限定符改为：类<Type>::，最后将要泛化的类型名用Type替换即可。
+模板实例化：
+1、隐式实例化：
+	ArrayTP<int,100> stuff;
+
+	ArrayTP<double,30> *pt;//a pointter,no object need yet
+	pt=new Array<double,30>;//now an object is needed
+2、显式实例化：
+	定义：
+	template<>class classname <specialized typename>{……}；
+	例：
+	template<>class SortedArray<const char*>{……};
+	SortedArray <const char*> data;
+3、部分实例化：
+	template<>class classname <>{};//template<>声明的是没有被具体化的类型参数，classname<>声明的是涉及到的具体参数；
+	例：
+	//general template
+	template<class T1,class T2,class T3>class Trio{};
+	//specialization with T3 set to T2
+	template<class T1,class T2>class Trio<T1,T2,T2>{};
+	//specialization with T3 and T2 set to T1*
+	template<class T1>class Trio<T1,*T1,*T1>{};
+	给定上述声明，编译器将作出如下选择：
+	Trio <int,sgort,chas*>t1;//use general template
+	Trio <int,short>t2;//use Trio<T1,T2,T2>
+	Trio <char,char*,char*>t3;//use Trio<T1,*T1,*T1>
+*/
+//使用指针时要注意，既要创建存储指针变量的空间，也要指出指针变量所指地址值的空间
+/*
+char *p;//仅创建了指针变量，没有创建用于保存字符串的空间；
+char po[40];//分配了空间，同时指针变量为char*保存在栈中
+
+*/
+//***********************指针栈*******************
+/*
+栈保存的应该是一个指针数组，而不能只是一个指针
+为什么要给类创建对象时使用new？
+因为该对象可以用来存储不同数据，可以更新，当它用来存指针时，必须化内存用于存储指针所指的变量。
+也就是说要独立给类中的指针型变量分配两部分内存，如果不用New则只有一部分，当外界变量发生改变或者被销毁时，指针所指变量会改变或无效。
+故应该复制副本在对象中。
+*/
+//*******************递归使用模版*****************
+/*
+递归使用：
+ArrayTP<ArrayTP<int,5>,10> twodee;
+等价=》int twodee[10][5];
+将模板用作参数：
+template<template<typename T>class Thing>
+其中template<typename T>class是类型，Thing是参数
+*/
+//**************************模板类和友元******************
+//使用有对象参数的模版类友元时，参数必须是可实例化的对象，若为类模版必须使用实例化后的类模版
+/*
+模板友元：
+	非模板友元（无对象参数）：基于类模版的友元函数,未指定类模版的具体实例
+	类定义：
+	template <class T>
+	class HasFriend
+	{
+	public:
+		friend void counts();//所有模板类的友元
+		friend void report(HasFriend<T>&)//bound template friend,注意类模版<T>
+		……
+	}
+	函数定义：不需要说明模版
+	template <typename T>
+	void counts()
+	{
+	函数体；
+	}
+	void report(HasFriend<int>&hf)
+	{
+	函数体；
+	}
+
+	（需要声明）约束（bound）模板友元：友元类型取决于类被实例化的类型
+	声明：
+	template <typename T>void counts();
+	template <typename T>void report(T &);//参数不需要说明类
+	类定义：
+	template <class TT>
+	class HasFriend
+	{
+	public:
+		friend void counts<TT>();//指定类模版实例类型
+		friend void report<>(HasFrirend<TT> &);
+		……
+	}
+	函数定义：需要说明类模版,相当于指定参数类型（类实例）的一般函数模版
+	template <typename T>
+	void counts()
+	{
+	函数体；
+	}
+	template <typename T>
+	void report(T &hf)
+	{
+	函数体；
+	}
+	非约束模板友元：友元的所有具体化都是类的每一具体化的友元
+	类定义：
+	template <class TT>
+	class HasFriend
+	{
+	public:
+	template <typename A>friend void counts();//
+	template <typename C,typename D>
+	friend void report(C &,D &);
+	……
+	}
+	函数定义：
+	template <typename A>
+	friend void counts()
+	{
+	函数体；
+	}
+	template <typename C,typename D>
+	friend void report(C &,D &);
+	{
+	函数体；
+	}
+*/
+//非模板类友元函数：不需要类外声明，函数不受类模版限制（参数可以为任意可直接创建对象的类引用），直接定义；
+//约束类模版友元函数：需要类外声明，类中声明要指定函数实例化所采用的类的实例化类型friend void counts<TT>()，类的实例化类型决定函数实例化类型，定义是要声明模版；形参声明类型即可，定义需指明类对象
+//非约束类模版友元函数：不需要类外声明，类中声明要加模版（不同对象的实例化）;函数具体化类型决定了类模版的实例化类型，定义需要声明模版。声明定义均只需要指定类型
+/*
+template <typename C, typename D>
+friend void report(C &, D &);
+*/
+//模版别名：
+/*
+template <class T>
+using arrtype=atd::Array<T,12>;
+也可以用做：
+typedef std::Array<T,12> arrtype;
+用作其他类型重命名：
+typedef const char* pc1;
+using pc2=const char*;
+*/
+
