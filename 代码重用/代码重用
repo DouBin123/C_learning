@@ -1,0 +1,96 @@
+//小范围/具象类（信息多）：大范围/抽象类（信息少）
+//包含，组合或层次化：类的成员本身是另一个类的对象。
+//has-a关系，即新的类包括另一个类的对象。
+//*******************接口与实现***************
+/*
+使用公有继承时，类可以继承接口，可能还有实现（基类的纯虚函数提供接口，但不提供实现），获得is--a关系的组成部分。
+使用组合，类可以获得实现，但不能获得接口。不继承接口是has--a关系的组成部分。
+*/
+//****************valarray对象*************
+/*
+double gpa[5]={3.1,4.5,6.7,7.8,3.3};
+valarray<double>v1;//an array of double,size 0
+valarray<int>v2(8);//an array of 8 int elements
+valarray<int>v3(10,8)//an array of 8 int elements,each set to 10
+valarray<double>v4(gpa,4);//an array of 8 int elements,initialed to the first 4 elements of gpa
+valarray<double>v5={23,34,45,34,12};
+
+该类的方法：
+operator[]():访问各个元素
+size():返回包含的元素个数
+sum():返回元素的总和
+max(),min()
+*/
+//*****************被包含对象的接口********8
+/*
+被包含对象的接口不是公有的，但是可以用类方法访问
+*/
+//**************************继承**********************
+//继承类型主要决定基类的（公有成员和保护成员）在派生类的访问权限
+//首先将基类的公有成员和保护成员当作在类定义中的普通成员，再加以限制符即可
+/*
+has---a（基类由包含的类派生而来/类中含有类：相对于基类，范围变小）: 私有继承，基类的公有成员和保护成员将成为派生类的私有成员。
+	基类方法将不会成为派生对象公有接口的一部分，可以在派生类的成员函数中访问。
+	1、定义与初始化基类组件
+	class Student:private std::string,private std::valarray<double>
+	{
+	Student(const std::string &s, int n) :std::string(s), ArrayDb(n){};
+	……
+	}
+	2、访问基类（包含类）的方法（使用基类域限定符::）
+	double Student::Average()const
+	{
+	if (ArrayDb::size() > 0)
+	return ArrayDb::sum() / ArrayDb::size();
+	else
+	return 0;
+	}
+	return ArrayDb::operator[](i);//原型
+	3、访问基类对象（this指针+强类型转换）
+	const string & Student::Name()const
+	{
+	return (const string &)*this;//基类对象本身为类对象(未知对象名称)，强制类型转换
+
+	}
+	4、访问基类的友元（转换为基类）
+	os<<（const String &）stu
+	5、使用using 重新定义访问权限（保护派生与有派生）
+	将函数调用包装在另一个函数调用之中：
+	class Student:private std::string,private std::valarray<double>
+	{
+	public:
+		using std::valarray<double>::max;
+		……
+	};
+	cout<<"high score: "<<ada[i].max<<endl;
+
+is----a(由类拓展类：相对基类，范围变大)：基类的公有方法将成为派生类的公有方法，且派生类可以直接访问基类的保护成员。
+保护继承：基类的的公有成员和保护成员将成为派生类的保护成员
+class name1:privete classname2
+{ };
+*/
+//********************多重继承*******************
+/*
+虚基类：一个类从两个不同的类那里继承了两个同名的类成员，则需要在继承的类中声明虚基类
+如果一个基类Worker,公有继承派生（public）出两个类：Waiter，Singer，则则两个类在生成对象时会有各自的Worker副本。
+当Waiter，Singer公有继承派生出另一个类SingerWaiter,因为Waiter，Singer各继承了一个Worker组件,因此SingerWaiter有两个waiter组件，在使用基类指针时，会出现二义性
+虚基类使得从多个类（基类相同）派生出的对象只继承一个基类对象。
+新的构造函数规则：
+	在定义非虚基类的派生类的构造函数时，信息可以自动传递，如：
+	class A{public:A(int n=0):a(n){}}
+	class B:public A{B(int m=0;int n=0):A(n),b(m){}}
+	class C:public B{C(int q=0,int m=0,int n=0):B(m,n),C(q){}}
+	如果Worker是虚基类，则在调用Singer和Waiter的构造函数后，还需要显式调用Worker的构造函数(不会自动传递)，这在非虚基类是不允许的。
+	SingerWaiter(const Worker &wk,int p=0,int v=Singer::other):Worker(wk),Waiter(wk,p),Singer(wk,v){};
+*/
+/*
+单继承中，派生方法可以调用基类的方法，在多重继承中，每个类的直接祖先都有一个基方法，在调用时会出现二义性。
+可以使用域解析运算符指定方法，或定义新方法。
+对于使用虚基类的派生类而言，同定义时一样，需要使用直接祖先的方法以及虚基的方法。
+	如果方法是保护的，则只能在继承层次的结构中使用它。
+总之：在祖先相同时，使用MI（多重继承）必须引入虚基类，并修改构造函数初始化列表的规则。
+1、虚基类和基类混合使用，虚基类继承一个对象，非虚基类继承多个对象
+2、定义虚基类的派生类，在新派生类中，虚基类的派生成员名优于虚基类。
+3、必要时对类的名称进行限制
+*/
+
