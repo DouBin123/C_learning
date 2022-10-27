@@ -1,0 +1,34 @@
+//队列不能用动态数组模拟，因为数组删除一个元素后，其余元素的位置不会改变，需要依次向前移动
+//而链表的节点存储该节点信息以及指向下一个节点的指针
+/*
+struct Node
+{
+	Item item;//data stored
+	struct Node *next  ;//point to next Node
+
+}
+*/	
+//****************构造函数成员初始化*******************
+//与在类定义时的初始化等价
+/*Queue::Queue(int qs):qsize(qs)//qsize为const int ,将其初始化为qs
+{
+front=rear=NULL;
+items=0;
+
+}
+或
+Queue::Queue(int qs):qsize(qs),front(NULL),rear(NULL),items(0)
+{}
+模版：
+Classy::Classy(int n,int m):mem1(n),mem2(m),mem(n*m+2)
+{
+//……
+}
+等价于：
+Class Classy
+{
+	int mem1=n;
+	const int mem2=20;
+	……
+}
+*/
