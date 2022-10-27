@@ -1,0 +1,401 @@
+//****************************IO流******************************
+#pragma region iostream
+//***************标准输入流***************
+/*
+使用 cin 从标准输入读取数据时，通常用到的方法有 cin>>、cin.get()，cin.getline()。
+	当我们从键盘输入字符串的时候需要敲一下回车键才能够将这个字符串送入到缓冲区中，
+	那么敲入的这个回车键（\r）会被转换为一个换行符（\n），这个换行符也会被存储在 cin
+	的缓冲区中并且被当成一个字符来计算！比如我们在键盘上敲下了 123456 这个字符串，
+	然后敲一下回车键（\r）将这个字符串送入了缓冲区中，那么此时缓冲区中的字节个数是 7 ，
+	而不是 6。
+cin>>:
+	当 cin>> 从缓冲区中读取数据时，若缓冲区中第一个字符是空格、tab或换行这些分隔符时，
+	cin>> 会将其忽略并清除，继续读取下一个字符，若缓冲区为空，则继续等待。但是如果读取成功，
+	字符后面的分隔符是残留在缓冲区的，cin>> 不做处理。
+	不想略过空白字符，那就使用 noskipws 流控制。比如 cin>>noskipws>>input;
+cin.get(char)
+	cin.get() 从输入缓冲区读取单个字符时不忽略分隔符，直接将其读取
+	cin.get() 的返回值是 int 类型，成功则返回读取字符的 ASCII 码值
+cin.get(char*s arsize )
+	遇到换行符时结束读取，但是不对换行符进行处理，换行符仍然残留在输入缓冲区。
+	将截取输入缓存区中的前n位
+cin.get(char* arsize delim)
+	指定读取的行数
+cin.getline()
+	cin.getline 读取一行字符时，默认遇到 ‘\n’ 时终止，并且将 ‘\n’ 直接从输入缓冲区中删除掉，不会影响下面的输入处理。
+//*************状态与清除***********
+goodbit(0x0)：无错误
+eofbit(0x1)：已到达文件尾
+failbit(0x2)：非致命的输入/输出错误，可挽回
+badbit(0x4)：致命的输入/输出错误，无法挽回
+与这些条件状态对应的就是设置、读取和判断条件状态的流对象的成员函数：
+	s.eof()：若流 s 的 eofbit 置位，则返回 true
+	s.fail()：若流 s 的 failbit 置位，则返回 true
+	s.bad()：若流 s 的 badbit 置位，则返回 true
+	s.good()：若流 s 的 goodbit 置位，则返回 true
+	s.clear(flags)：清空当前状态, 然后把状态设置为 flags，返回 void
+	s.setstate(flags)：不清空当前状态，设置给定的状态 flags，返回 void
+	s.rdstate()：返回流 s 的当前条件状态，返回值类型为 ios_base::iostate
+getline()
+	getline() 利用 cin 可以从标准输入设备键盘读取一行，当遇到如下三种情况会结束读操作：
+	文件结束\遇到行分隔符/输入达到最大限度。
+	getline() 函数的参数使用了 string 字符串.
+gets()
+	gets() 是 C 中的库函数，在头文件 <stdio.h> 申明，从标准输入设备读字符串，可以无限读取，不会判断上限，以回车或者文件结束符 EOF（ 即 -1） 结束
+*/
+
+
+//*************************输出格式设置***********************
+/*
+cout.setf()的作用是通过设置格式标志来控制输出形式，
+其中ios_base::fixed表示：用正常的记数方法显示浮点数(与科学计数法相对应)；
+ios_base::floatfield表示小数点后保留6位小数。
+setf()的第一原型：
+C++为标准输入和输出定义了一些格式标志, 它可以通过flags(), setf(), 和 unsetf() 三个函数来控制.
+例如：
+cout.setf(ios_base::left);//左对齐
+cout << setiosflags(ios_base::scientific);
+第二原型:
+包含两个参数，第一个参数和第一原型里的参数一样，第二个参数指出要清除第一参数中的哪些位，也就是说，
+在第二原型中，第一个参数指出要设置哪些位，第二个参数指出要清除哪些位
+
+cout.precision 跟 setprecision 一样，
+cout.unsetf 跟 resetiosflags 一样。
+setiosflags(ios::fixed) 固定的浮点显示
+setiosflags(ios::scientific) 指数表示
+setiosflags(ios::left) 左对齐
+setiosflags(ios::right) 右对齐
+setiosflags(ios::skipws 忽略前导空白
+	setiosflags(ios::uppercase) 16进制数大写输出
+	setiosflags(ios::lowercase) 16进制小写输出
+	setiosflags(ios::showpoint) 强制显示小数点
+	setiosflags(ios::showpos) 强制显示符号
+	boolalpha	可以使用单词”true”和”false”进行输入 / 输出的布尔值.
+	oct	用八进制格式显示数值.
+	dec	用十进制格式显示数值.
+	hex	用十六进制格式显示数值.
+	left	输出调整为左对齐.
+	right	输出调整为右对齐.
+	scientific	用科学记数法显示浮点数.
+	fixed	用正常的记数方法显示浮点数(与科学计数法相对应).
+	showbase	输出时显示所有数值的基数.
+	showpoint	显示小数点和额外的零，即使不需要.
+	showpos	在非负数值前面显示”＋（正号）”.
+	skipws	当从一个流进行读取时，跳过空白字符(spaces, tabs, newlines).
+	unitbuf	在每次插入以后，清空缓冲区.
+	internal	将填充字符回到符号和数值之间.
+	uppercase	以大写的形式显示科学记数法中的”e”和十六进制格式的”x”.
+	iostream 中定义的操作符：
+	操作符	描述	输入	输出
+	boolalpha	启用boolalpha标志	√	√
+	dec	启用dec标志	√	√
+	endl	输出换行标示，并清空缓冲区		√
+	ends	输出空字符		√
+	fixed	启用fixed标志		√
+	flush	清空流		√
+	hex	启用 hex 标志	√	√
+	internal	启用 internal 标志		√
+	left	启用 left 标志		√
+	noboolalpha	关闭boolalpha 标志	√	√
+	noshowbase	关闭showbase 标志		√
+	noshowpoint	关闭showpoint 标志		√
+	noshowpos	关闭showpos 标志		√
+	noskipws	关闭skipws 标志	√
+	nounitbuf	关闭unitbuf 标志		√
+	nouppercase	关闭uppercase 标志		√
+	oct	启用 oct 标志	√	√
+	right	启用 right 标志		√
+	scientific	启用 scientific 标志		√
+	showbase	启用 showbase 标志		√
+	showpoint	启用 showpoint 标志		√
+	showpos	启用 showpos 标志		√
+	skipws	启用 skipws 标志	√
+	unitbuf	启用 unitbuf 标志		√
+	uppercase	启用 uppercase 标志		√
+	ws	跳过所有前导空白字符	√
+	iomanip 中定义的操作符：
+	操作符	描述	输入	输出
+	resetiosflags(long f)	关闭被指定为f的标志	√	√
+	setbase(int base)	设置数值的基本数为base		√
+	setfill(int ch)	设置填充字符为ch		√
+	setiosflags(long f)	启用指定为f的标志	√	√
+	setprecision(int p)	设置数值的精度(四舍五入)		√
+	setw(int w)	设置域宽度为w		√
+*/
+#pragma endregion
+#pragma region ostream
+/*
+C++把输入和输出看作字节流。输入时，程序从输入流中抽取字符；输出时，程序将字节插入到输出流中。
+输入流的字节可能来自键盘，也可能来自存储设备（如硬盘）或其他程序。
+同样，输出流的字节可以流向屏幕，打印机，存储设备或其他程序。流充当了程序和流源或流目标之间的桥梁
+这使得C++程序可以以相同的方式对待来自键盘的输入和来自其他文件的输入。C++程序只是检查字节流，而不需要
+知道字节来自何方。同样 ，通过使用流，C++程序处理输出的方式将独立于其去向。因此管理输入包含两步：
+	将流与输入去向的程序关联起来。
+	将流与文件关联起来。
+通常，通过使用缓冲区可以更高效的处理输入和输出。缓冲区是用作中介的内存块，它是将信息从设备传输到
+程序或从程序传输给设备的临时存储工具。C++通常在用户按下回车键后刷新缓冲区。
+1、流，缓冲区和iostream文件
+ios类（流属性，包括一个指向streambuf对象的指针）-----streambuf类（管理输入/输出缓冲区的内存）
+派生:ostream类+istream类
+派生类多重继承：iostream类
+在程序包含iostream头文件时，自动创建8个流对象：
+	cin:标准输入流，被关联到标准输入设备（通常为键盘），wcin对象类似，但处理的是wchar_t类型
+	cout:标准输出流，被关联到标准输出设备（通常为屏幕），wcout对象类似，但处理的是wchar_t类型
+	cerr:标准错误流，可用于显示错误消息，默认被关联到标准输出设备。这个流没有被缓冲，wcerr对象类似，但处理的是wchar_t类型
+	clog:标准错误流，默认关联标准输出设备，这个流被缓冲，wclog类型。。
+	对象代表流，该对象在头文件为程序声明一个cout对象时，将包含存储了与输入有关的信息的数据成员。
+2、重定向
+输入重定向<
+输出重定向>
+可以改变标准输出和标准输出，但是重定向不影响clog和cerr。
+3、cout
+(1)重载<<
+与c一样，<<运算符的默认含义是按位左移
+ostream & operator<<(int);//重载运算符接受一个int参数，函数返回一个ostream对象的引用。
+默认可识别的类型：char,short,int,long,float,double..
+c++用指向字符串存储位置的指针来表示字符串。
+ostream类还为const signed char *;const unsigned char*;const char *;void *；定义了插入运算符函数。
+(2)其他ostream方法
+ostream  & put(char);//显示单个字符
+basic_ostream<charT,traits>& write(const char_type* s,streamsize n);//显示整个字符串，指定输出长度
+4、刷新缓存区
+程序在接收到回车键消息之后会自动刷新缓存区
+如果希望实现控制缓存区刷新，可以使用两个控制符中的一个来强行刷新：
+	flush：刷新缓存区
+	cout<<"Hello"<<flush;
+	flush(cout);
+	endl：刷新缓存区，并插入一个换行符
+5、用cout进行格式化
+(1)修改显示时使用的计数系统
+	[1]设置输出格式（ios_base的成员函数）
+	ostream类由ios类派生而来，而ios类由ios_base派生，ios_base是包含char和wwxhar_t具体化的模板
+	要控制输出数据以k进制显示，使用dec,hex,oct控制符:
+	hex(cout);
+	cout<<hex;
+	[2]调整字段宽度（成员函数）
+	int width();//返回字段宽度的当前设置
+	int width(int i);//将字段宽度设为i，并返回以前的字段宽度值
+	只影响接下来显示的一个项目，然后字段宽度恢复为默认值
+	[3]填充字符（成员函数）
+	默认情况下，cout用空格来填充字段中未被使用的部分，可以使用fill()成员函数来改变填充字符
+	cout.fill('*');
+	[4]设置浮点数的显示精度（成员函数）
+	cout.precision(2);//默认指的是总位数，一直有效
+	[5]打印末尾的0和小数点(ios_base成员函数)
+	ios_base提供的setf()函数可以控制多种格式化特性
+	setf()函数的两个原型，均返回之前的格式设置
+		fmtflags setf(fmtflags);//fmtflags是格式常量，主要有：ios_base::boolalpha,ios_base::showbase,ios_base::showpoint,ios_base::uppercase,ios_base::showpos
+		fmtflags setf(fmtflags,fmtflags);//第一个参数与上面一样，第二个参数指出要清除第一个参数中的哪些位
+		第二个参数					第一个参数						含义
+									ios_base::dec
+		ios_base::basefield			ios_base::oct
+									ios_base::hex
+
+		ios_base::floatfield		ios_base::fixed				定点计数法
+									ios_base::scientific		科学计数法
+									ios_base::left
+
+		ios_base::adjustfield		ios_base::right				右对齐
+									ios_base::internal			符号或基数左对齐，值右对齐
+C++标准中，定点表示法和科学计数法都有下列特征：
+	精度指的是小数位数
+	显示末尾的0
+	ios_base fmtflags old=cout.setf(ios::left,ios::adjustfield);
+	cout.setf(old,ios::adjustfield);//恢复以前设置
+	调用setf()的效果可以通过unsetf()消除，原型如下：
+	void unsetf(fmtflags mask);//其中，mask是位模式。mask所有的位都设为1，将使得对应的位被复位
+	cout.setf(0,ios_base::floatfield);//默认模式
+	cout.unsetf(ios_base::floatfield);//go to default mode,不管系统处于何种模式，都可以使用该语句回到默认模式
+	[6]标准控制符
+	使用setf()不是格式化对用户最为友好的方法，c++提供了多个控制符，可以调用setf()
+	cout<<left<<fixed;//打开左对齐和定点选项
+	其他控制符：
+	boolalpha,noboolalpha,showbase,showpoint,showpos,uppercase,internal,left,right,dec,oct,fixed,scientific
+	[7]头文件iomanip
+	setprecision():精度
+	setfill():填充字段,只针对下一个输出
+	setw():字段宽度
+*/
+#pragma endregion
+#pragma region istream
+/*
+6、使用cin进行输入
+	cin>>value_holder;
+	其中，value_holder为存储输入的内存单元，它可以是变量，引用，被解除引用的指针，也可以是类或结构的成员
+	重载的>>运算符可以识别以下为类型：
+	signed char &,unsigned short &,unsigned int &,unsigned long long &,long double &
+	原型：istream & operator>>(int &)
+	可以将cin与hex,oct.dec控制符一起使用，来指定将整数输入解释为不同进制
+	istream类还为下列字符指针类型重载了>>抽取运算符：
+		signed char *;
+		char *;
+		unsigned char *;
+	[1]cin>>如何检查输入
+	跳过空白（空格，换行符，制表符），直到遇到非空白符开始匹配，直到与目标不匹配的第一个字符之间的全部内容。
+	后面的输入将会留在输入流中。
+	[2]流状态
+	cin或cout对象包含一个描述流状态的数据成员（从ios_base类继承）:
+	eofbit:当cin操作到达文件尾时，它将设置eofbit为1
+	failbit:当cin未能读到预期的字符时，它将设置failbit为1
+	badbit:在遇到一些无法诊断的失败破坏流时，badbit将被设置为1。
+	其他方法：
+	goodbit:另一种表示0的方法
+	good()：如果流看可以使用，则返回true
+	eof():如果eofbit()被设置，则返回ture
+	bad():badbit
+	fail():badbit或failbit
+	rdstate()：返回流状态
+	exceptions():返回一个掩码，指出哪些标记导致异常被引发
+	exceptions(iostate ex):设置哪些状态导致clear()引发异常；
+	clear(iostate s):将流状态设置为s，默认为0，如果（restate()&exceptions()）!=0,将引发异常
+		clear();//三位均清除
+		clear(eofbit);//设置eodbit,清除其他两位
+	setstate()：调用clear(rdstate()|s)，只影响参数中已设置的位
+	exceptions()方法会调用clear()方法，若返回值中某一状态位被设置，而当前状态中的对应位也被设置，则clear()将引发ios_base::failure异常
+	ios_base::failure异常类是由std::exception类派生的，因此包含一个what()方法。
+	如果输入了不恰当的字符，仅仅使用clear()清除位是行不通的，因为导致循环终止的不匹配输入仍在输入流中
+	程序必须跳过它。一种方法是使用isspace()函数是一个cctype函数，它在参数是空白字符时返回ture.
+	另一种方法是,丢弃行中的剩余部分，而不仅仅是下一单词
+7、其他istream方法
+（1）字符输入
+	get(char&)和get(void):提供不跳过空白的单字符输入功能，换行符仍保留在输入缓存区
+		istream & get(char&)；
+		int  get(void)；
+		istream & get(char&)返回一个指向并调用它的istream对象的引用，可以拼接后面的其他抽取。文件尾返回false
+			cin.get(c1).get(c2).get(c3);
+		int  get(void):使用返回值将输入传递给程序，到达文件尾返回EOF
+	
+如果程序需要跳过空白符，则使用>>方便，如果希望检查每个字符使用get()
+（2）字符串输入：getline(),get(),ignore()
+	get(char*,int,char)和getline()：读取整行（遇到换行符或读取字符数达到最大值），getline()自动删除换行符
+	istream & get(char*,int,char);
+	istream & get(char*,int);
+	istream & getline(char*,int,char);
+	istream & getline(char*,int);
+	第3个参数用于指定用作分解符的字符，默认为换行符。
+	istream & ignore(int,char);//(最大字符数，输入分界符)，读取并丢弃
+	原型：ignore(int=1,char=EOF)
+注意：getline()会丢弃输入中的分界字符，get()不会
+getline(char*,int):如果没有读取任何字符（换行为一个字符），设置failbit
+					如果读取了最大数目字符，且行中还有字符，设置failbit
+get(char*,int):如果没有读取任何字符(空行也算)，则设置failbit
+（3）其他istream方法
+read():指定读取的字节，并存储在指定位置。不会在输入后加上空值字符，因此不能转换为字符串
+	istream & read(char*,int);
+peek():返回输入中的下一字符，但不抽取输入流中的字符，能够查看下一字符
+	ch=cin.peek()
+gcount():返回最后一个非格式化（除>>外的抽取方法）抽取方法读取的字符数，
+putback():将一个字符插入到输入字符串中，被插入的字符将是下一条输入语句读取的第一个字符
+	istream & putback(char)
+*/
+#pragma endregion
+#pragma region file
+//*************************文件的输入与输出**********************
+/*
+头文件：# include <fstream>
+1、简单的文件IO
+要让程序写入（输出）文件，必须：
+	创建ofstream对象来管理输出流
+		ofstream fout;
+	将该对象与特定的文件关联起来
+		fout.open("jar.txt");//会自动创建文件
+	或者使用另一个构造函数直接将两步合为一步
+		ofstream fout("jar.txt");
+	以使用cout的方式使用该对象，唯一的区别是输出进入文件而不是屏幕
+		fout<<"Dull Date";
+读取文件的要求：
+	创建一个ifstream对象管理输入流；
+	将该对象与特定的文件关联起来；
+	以使用cin的方式使用该对象；
+		//two statements
+		ifstream fin;
+		fin.open("jellyjar.txt");
+		//one statement
+		ifstream fis("jellyjar.txt");
+		char ch;
+		fin>>ch;
+		char buf[80];
+		fin.getline(buf,80);
+当输入和输出流对象过期时，到文件的连接自动关闭，另外，也可以使用close()方法显示关闭。
+	fout.close();
+	fin.close();
+检查流状态：继承了ios_base类中的方法open(),如果试图打开一个不存在的文件进行输入，将设置failbit
+与istream一样，在需要布尔量的地方ifstream会被转换为bool值。
+2、打开多个文件
+一般情况下，打开每个文件都会为其创建一个流；
+批量处理时，可以打开一个流，将它依次关联到各个文件。
+	ifstream fin;
+	fin.open("fat.txt");
+	……
+	fin.close();
+	fin.clear();
+	fin.open("rat.txt");
+	……
+	fin.close();
+3、命令行处理技术
+wc report1 report2 report3
+其中wc是程序名，report1,2,3是作为命令行参数传递给程序的文件名
+c++有一种让在命令行环境中运行的程序能够访问命令行参数的机制：
+	int main(int argc,char*argv[])
+	argc为命令行中的参数个数，其中包括命令名本身，argv[]变量是一个指针数组，其中的指针指向命令行参数
+	argv[0]是一个指针，指向存储第一个命令行参数的字符串的第一个字符。
+	对于上述命令,则argc=4,argv[0]=wc,argv[1]=report1....
+	在VS中使用命令行的方法：项目--属性---调试，在这个对话框里，我们主要需要修改的就是命令参数和工作目录两项。
+	在命令参数中输入命令即可：$a.out paris.txt  pair.txt
+4、文件模式
+文件模式描述的是文件将被如何使用：读，写，追加等，将流与文件关联时，都可以指定文件模式的第二个参数
+	ifstream  fin("banjo",mode1);
+	ofstream fout();
+	fout.open("harp",mode2);
+	ios_base类定义了一个openmode类型，用于表示模式；与fmtflags和iostate类型一样，它也是一种bitmask类型。
+文件模式常量：
+	ios_base::in		r				打开文件，以便读取			
+	ios_base::out		w				打开文件，以便写入
+	ios_base::ate						打开文件，并移到文件尾
+	ios_base::app		append		    追加到文件尾
+	ios_base::trunc						如果文件存在，则短截文件，以前的内容将被删除
+	ios_base::binary					二进制文件
+(1)追加文件
+对于文本格式与二进制的存储：（不仅结构体，同样也使用不适用虚方法的类）
+结构体在以文本格式写入文件时，需要显式提供每个结构体成员，还必须将相邻的数据分隔开。
+结构体在以二进制格式写入文件时，提供地址和结构体的长度，保存更为紧凑，精密。
+使用二进制文件模式时，程序将数据从内存传给文件（反之亦然），将不会发生任何的隐式转换，而默认的文本文件并非如此。
+使用read()和write()方法。
+(2)随机存取
+随机存取指的是直接移动（不是依次移动）到文件夹的任何位置。
+	fstream finout;
+	finout.open(file,ios_base::in|ios_base::out|ios_base::binary)
+fstream类为了满足文件中的移动方式，继承类方法：
+seekg():将输入指针移到文件的指定位置
+seekp():将输出指针移到文件的指定位置
+	basic_istream<charT,traits>& seekg(off_type,ios_base::seekdir);//定位到离第二个参数指定的文件位置特定距离的位置
+	basic_istream<charT,traits>& seekg(pos_type);//定位到里文件开头特定距离的位置
+事实上，由于fstream类使用缓冲区来存储数据，因此指针指向的是缓冲区的位置，而不是实际的文件。
+也可以将seekp()用于ofstream对象，将seekg()用于ifstream对象。
+	类型升级：streampos和streamoff作为pos_type和off_Type的char的具体化，istream被模板basic_istream取代
+streamoff的值用来度量相对于文件特定位置的偏移量（字节）
+seek_dir参数是ios_base类中定义的另一种整型，有3个可能的值：
+	ios_base::beg指相对于文件开始处的偏移量
+	ios_base::cur指的是相对于当前位置的偏移量
+	ios_base::end指的是相对于文件尾的偏移量
+如果要检查文件指针的当前位置，则对于输入流，可以使用tellg（）方法，对于输出流，可以使用tellp()方法。
+(3)使用临时文件
+头文件：# include <stdlib>
+char* tmpnam(char* pszName);
+(4)内核格式化
+读取string对象中的格式化信息或者将格式化信息写入string对象中被称为内核格式化 
+头文件：# include <sstream>
+	该头文件定义了一个从ostream类派生的ostringstream类（还有一个用于宽字符集的类wostringstream）
+		可以将cout对象的方法用于ostringstream对象
+		格式化文本进入缓存区，该对象将使用动态内存分配来增大缓冲区。ostringstream类有一个名为str()的成员函数
+		该函数返回一个被初始化为缓存区内容的字符对象。
+			string mesg=outstr.str();
+	istringstream类允许使用istream方法族读取istringstream对象中的数据，istringstream可以使用string对象初始化
+		string  facts;
+		istringstream instr(facts);
+流类似于缓存区的作用，在需要时，可以从中抽取信息。
+
+
+
+*/
+#pragma endregion
