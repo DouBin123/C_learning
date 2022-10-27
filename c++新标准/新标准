@@ -1,0 +1,289 @@
+/*
+C++11新特性：
+1、新类型
+	新增了类型long long 和unsigned long long 以及支持64位的整型；
+	新增了类型char16_t，char32_t，以支持16位和32位的字符表示；
+	新增了“原始”字符串。
+2、统一初始化功能
+	扩大了大括号的列表初始化范围，使用大括号时可添加也可不添加=
+	int x={5};
+	int ar*=new int [4] {1,2,3,4};
+	class stump
+	{
+	public:
+		int root;
+	private:
+		stump(int r):root(r){}
+	};
+	stump s1{3};
+	stump s2={2};
+	(1)缩窄
+	使用初始化列表语法，编译器将禁止缩窄隐式转换
+	(2)std::initializer_list
+	头文件：# include <initializer_list>
+	c++11提供了模板类initializer_list，可以将其用作构造函数的参数。
+	vector<int> a1 (10);//10个元素,并不是用10初始化容器；
+	vector<int> a2{12,23};//初始化
+	initializer_list头文件提供了对initializer_list模板类的支持。该类还包括成员函数begin()，end()
+3、声明
+	(1)auto
+	自动类型推断：
+	auto mato=112;//int
+	auto pt=&mat0;//int *
+	double fm(double,int);
+	auto pf=fm;//double(*)(double,int)
+	简化模板声明若il是一个std::initializer_list<double>对象
+	for(std::initializer<double>::iterator p=il.begin();p!=il.end();p++)
+	可以替换为：
+	for(auto  p=il.begin();p!=il.end();p++)
+	(2)decltype
+	将变量的类型声明为表达式指定的类型：
+	double x;
+	int n;
+	decltype{x*n} q;//q same as x*n, double
+	定义模板：
+	template<typename T,typename U>
+	void ef(T t,U u)
+	{
+		。。。
+		decltype(T*U) tu;
+	}
+	int j;
+	decltype(j);//int
+	decltype((j));//int &
+	(3)返回类型后置
+	double f1(double,int);
+	auto f2(double,int)->double;
+	模板作用域优化：
+	template<typename U,typename T>
+	auto eff(T t,U,u)->decltype (T*U)
+	{
+	……
+	}
+	(4)模板别名：using
+	typedef std::vector<std::string>::iterator itType;
+	using itType=std::vector<std::string>::iterator;
+	using也可以用作模板部分具体化：
+	template<typename T>
+	using arr12=std::array<T,12>;
+	上述语句可以使array<T,int>（将参数int设置为12）.
+	std::array<double ,12>a1;
+	arr12<double>a1;
+	(5)nullptr(空指针)
+	(6)智能指针（自动释放内存）
+	头文件：# include <memory>
+	unique_ptr;//所有权 new new[]
+	shared_ptr;//多个指针指向同一对象，计数 new
+	weak_ptr;
+4、异常规范的修改
+void f501(int)throw(bad_dog);//can throw type bad_dog exception
+void f733(long long)throe()//doesn't throw an exception
+新：
+void f875(short,short)noexception;//doesn't throw an exception
+5、作用域内枚举
+	(1)显式转换运算符
+	explicit :禁止自动类型转换
+	(2)类内成员初始化
+	可以使用大括号与赋值运算符
+	class session
+	{
+	public:
+		int mem1=10;
+		double mem2{1966.54};
+		short mem3;
+	private:
+	session(){};
+	session(short s):mem3(s){};
+	session(int n,double d,short s):mem1(n),mem2(d),mem3(s){};
+	……
+	}
+6、模板和STL方面的修改
+	(1)基于范围的for循环
+	double prices[5]={1,2,3,4,5};
+	for(auto x:prices)
+	std::cout<<x<<std::endl;
+	(2)新增的STL容器
+	forward_list，unordered_map,unordered_multimap,unordered_set,unordered_multiset
+	新增模板类array
+	std::array<int,34>ar;//array of 34 ints
+	(3)新增的STL方法
+	cbegin(),cend()
+	(4)valarray升级
+	面向数值计算的容器，添加了函数begin(),end()
+	(5)摒弃export
+7、右值引用(实现移动语义)
+	传统的C++引用（左值引用）使得标识符关联到左值，左值是一个表述数据的表达式（变量或解除引用的指针），程序可以获取其地址
+	右值引用：&&
+	不能对其应用地址运算符的值。包括字面常量、诸如x+y的表达式以及返回值的函数（非引用）
+8、移动语义和右值引用（修改了源对象，不能使用const）
+移动语义的“移动”，意味着把某对象持有的资源或内容转移给另一个对象。实际文件还留在原来的地方，而只修改记录
+要实现移动语义，需要采取某种方式，让编译器知道什么时候需要复制，什么时候不需要。这就是右值引用发挥作用的地方。
+	(1)构造函数：
+	移动构造函数（右值引用）：只记录
+		将源对象所有权（地址传递）给目标对象，并将其指针置空。
+	复制构造函数（const 左值引用）：深复制
+	(2)赋值
+	适用于构造函数的移动语义也适用于赋值运算符
+	删除目标对象的原始数据，将源对象的所有权转让给目标
+	(3)强制移动
+	法1：static_cast<Useless &&>()
+	法2：
+	头文件：# include <utility>
+	std::move()
+*/
+//**********************新的类功能*******************
+/*
+1、特殊的成员函数
+在原有的4个特殊成员函数（默认构造函数，复制构造函数，复制赋值运算符和析构函数）的基础上，
+新增了两个：移动构造函数，移动赋值运算符
+移动构造函数原型：
+	someclass::someclass(const someclass &）；//copy
+	someclass::someclass(someclass &&）；//move
+复制和移动运算符：
+	some & someclass::operator(const someclass &);//copy
+	some & someclass::operator(someclass &&);//move
+2、默认的方法和禁用的方法
+如果自己定义了相应的构造函数，则编译器不会自动创建默认构造函数，可以使用=defalt显式的声明默认版本
+同样的，使用关键词=delete可以禁用方法
+3、委托构造函数
+定义构造函数时使用另一构造函数：
+ class1::class1(int nn):n(n);
+ class1::class1(double kk):class1(nn),k(kk){/do other stuff/}
+4、继承构造函数
+派生类可以继承基类构造函数的机制。
+	c++98:
+	namespace Box
+	{
+		int fn(int){...}
+	}
+	using Box::fn;
+	c++11:
+	class BS
+	{
+	private:
+		int q;
+		double w;
+	public:
+		BS():q(0),w(0){}
+		BS(int k):q(k),w(100){}
+		BS(double x):q(-1),w(x){}
+		BS(int k,double x):q(k),w(x){}
+	};
+
+	class QR:public BS
+	{
+	private:
+		short j;
+	public:
+		using BS:BS//QR类可以使用BS类的三个构造函数
+		QR():j(-100){}
+		QR(double x):BS(2*x),j(int(x)){}
+		QR(int i):j(-2),BS(i,0.5*i){}
+	};
+	int main()
+	{
+		QR o1;//QR()
+		QR o2(1.23);//QR(double)instead of BS(double)
+		QR (10,9.3);//not find in QR constructor,use BS(int,double)
+	}
+5、管理虚方法：override和final
+虚方法对实现多态类层次结构很重要，让基类引用或者指针能够根据指向的对象类型调用相应的方法
+如果派生类的特征标不匹配，将隐藏而不是覆盖旧版本
+override:放在参数列表后边，指出要覆盖一个虚函数，如果声明与基类不匹配将报错。
+final:放在参数后面，禁止派生类覆盖特定的虚方法
+*/
+//**********************lambda函数***********************
+/*
+1、比较函数指针、函数符（仿函数）、Lambda表达式|（函数对象）
+函数符（仿函数）使用类来的重载来定义函数，使其可以适用多个对象。
+lambda表达式---一种匿名函数
+//lambda函数表达式（匿名函数）：auto 函数名=[capture](parameters)->return-type{body}
+	直接通过函数名调用
+[捕获从句]（形参列表）-> 类型说明符｛函数体｝指明返回类型
+[捕获从句]（形参列表)｛函数体｝未指明返回类型，自动识别
+	使用[]代替了函数名；
+	表达式完全由一条返回语句时，没有声明返回值类型，相当于使用decltype自动推算
+	否则需要声明返回值类型；
+[](doubble x)->double{int y=x;return x-y;}//return double
+例如：
+bool f3(int x){return x%3==0;}
+==>
+[](int x){return x%3==0;}
+可以给Lambda表达式指定名称：
+auto mod3=[](int x){return x%3==0;}
+bool result=mod3(100);
+注意：函数指针阻止了内联，函数符和lambda表达式没有阻止内联
+lambda表达式的其他功能：需要在定义函数时使用一些外部变量的捕获方式
+	[]      // 沒有定义任何变量。使用未定义变量会引发错误。
+	[x, &y] // x以传值方式传入（默认），y以引用方式传入。
+	[&]     // 任何被使用到的外部变量都隐式地以引用方式加以引用。
+	[=]     // 任何被使用到的外部变量都隐式地以传值方式加以引用。
+	[&, x]  // x显式地以传值方式加以引用。其余变量以引用方式加以引用。
+	[=, &z] // z显式地以引用方式加以引用。其余变量以传值方式加以引用。
+	[this]：通过引用捕获当前对象（其实是复制指针）；
+	[*this]：通过传值方式捕获当前对象；
+*/
+//***************************包装器*********************
+/*
+c++提供了多个包装器（wrapper/adapter）旨在提供更适合的接口
+bind:可替代bind1st和bind2nd
+men_fn:将函数成员作为常规函数进行传递
+reference_wrapper:能够创建行为像引用但可被复制的对象
+function:以统一方式处理多种类似于函数的形式
+*/
+//*********************可变参数模板*****************
+/*
+接受可变数量的参数的模板函数或模板类
+	模板参数包
+	函数参数包
+	展开参数包
+	递归
+1、模板和函数参数包（T t）
+c++11提供了一个用省略号表示的元运算符，使用户可以声明表示模板参数包的标识符，模板参数包基本上是一个类型列表
+同样，也可以声明函数参数包的标识符，而参数参数包基本上是一个值列表：
+	template <typename...Args>//Args is a template parameter pack
+	void show_list1(Args...args)//args is a funtion parameter pack
+	{
+		...
+	}
+2、展开参数包
+	template <typename...Args>//Args is a template parameter pack
+	void show_list1(Args...args)//args is a funtion parameter pack
+	{
+		show_list1(args...)
+	}
+该函数调用与原始函数调用相同，会导致无限递归
+3、在可变参数模板函数中使用递归
+将函数参数包展开，对列表中的第一项进行处理，再将余下的内容传递给递归调用，以此类推，直到列表为空
+template <typenameT,Typename...Args>//Args is a template parameter pack
+	void show_list3(T value,Args...args)//args is a funtion parameter pack
+每次调用参数数量减少1个
+*/
+//*******************************c++11新增的其他功能*****************
+/*
+1、并行编程
+c++定义了一个支持线程化执行的内存模型，添加了关键字thread_local
+关键字thread_local将变量声明为静态存储，其持续性与特定线程相关
+库支持由原子操作（atomic operation）库和线程支持库组成。其中原子操作库提供头文件 atomic,
+线程支持库提供了头文件thread,mutex,condition_variable和future
+	(1)新增的库
+	random:随机数生成器，分布状态（均匀，二项，正态）
+	chrono:处理时间间隔
+	tuple:支持模板tuple，是广义的pari对象，pair对象可以存储两个类型不同的值，而tuple可以存储任意多个类型不同的值
+	ratio:支持有理数算术库
+	regex:支持正则表达式库
+	(2)低级编程
+	低级指的是抽象程度，意味着接近计算机硬件和机器语言使用的比特和字节
+	放松了POD(plain old data)的要求，允许共有体的成员有构造函数和析构函数
+	解决了内存对齐问题
+	(3)杂项
+	扩展整型：cstdint
+	自定义字面量机制：字面量运算符（literal operator）
+	提供调试工具assert(宏)
+	加强了对元编程的支持
+2、语言变化
+	(1)Boost项目
+	(2)TR1(Tchnical Report 1)
+	包含Boost库的一部分，：模板类tuple,array,模板bind,function智能指针，static_assert,regex库，random库
+
+*/
