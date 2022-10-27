@@ -1,0 +1,219 @@
+# include <iostream>
+using namespace std;
+//模板定义
+/*
+template <class AnyType>
+void Swap(AnyType &a, AnyType &b)
+{
+	AnyType temp;
+	temp = a;
+	a = b;
+	b = temp;
+
+}
+*/
+/*
+函数重载选择优劣：
+1、完全匹配，但常规函数优先于模板
+2、提升转换（char/short-->int ,float转化为double）变长
+3、标准转换（int--char，long---double）
+4、自定义转换
+*/
+template <typename T>//or class T
+void Swap(T &a, T &b);
+
+template<typename T>//overload template
+void Swap(T *a, T *b, int n);
+
+void Show(int a[]);
+
+const int Lim = 8;
+//显式具体化
+struct job//可以整体交换赋值
+{
+	char name[40];
+	double salary;
+	int floor;
+
+};
+template<>void Swap(job &j1, job &j2);//具体化-----显式实例化
+void Show(job &j);//函数重载
+template <class T>//自定义选择
+T lesser(T a, T b)
+{
+	return a < b ? a : b;
+
+}
+
+int lesser(int a, int b)
+{
+	a = a < 0 ? -a : a;
+	b = b < 0 ? -b : b;
+	return  a < b ? a : b;
+}
+
+template <class T1,class T2>
+void ft(T1 x, T2 y)
+{
+	decltype(x + y) z = x + y;//已知x与y类型，z与(x+y)类型一致
+
+}
+
+template <class T1, class T2>
+auto gt(T1 x, T2 y)->decltype(x + y)
+{
+	return x + y;
+
+}
+
+int main()
+{
+	cout.precision(2);
+	cout.setf(ios::fixed, ios::floatfield);
+	//第一个参数指出要设置哪些位，第二个参数指出要清除哪些位。
+	int i = 10;
+	int j = 20;
+	cout << "i,j= " << i << "," << j << endl;
+	cout << "Using compiler generated int swapper:\n";
+	Swap(i, j);
+	cout << "Now i,j= " << i << "，" << j << endl;
+
+	double x = 24.5;
+	double y = 81.7;
+	cout << "x,y= " << x<< "," << y << endl;
+	cout << "Using compiler generated int swapper:\n";
+	Swap(x, y);//具体化-----隐式实例化
+	cout << "Now x,y= " << x << "，" << y << endl;
+	int d1[Lim] = { 0, 7, 0, 4, 1, 7, 7, 6 };
+	int d2[Lim] = { 0, 7, 2, 0, 1, 9, 6, 9 };
+	cout << "Oriiginal arrays:\n";
+	Show(d1);
+	Show(d2);
+	Swap(d1, d2, Lim);
+	cout << "Swapped arrays:\n";
+	Show(d1);
+	Show(d2);
+# pragma region special
+	job sue = { "Sidny Yaffee", 73000.60, 7 };
+	job sidney = { "Sidny Yaffee", 70806.72, 9 };
+	cout << "Before job swapping:\n";
+	Show(sue);
+	Show(sidney);
+	Swap(sue, sidney);
+	cout << "After job swapping:\n";
+	Show(sue);
+	Show(sidney);
+
+#pragma endregion
+#pragma region choice
+	int m = 20;
+	int n = -30;
+	double x1 = 15.5;
+	double y1 = 25.9;
+
+	cout << lesser(m, n) << endl;//非模板
+	cout << lesser(x1, y1) << endl;//模板
+	cout << lesser<>(m, n) << endl;//模板
+	cout << lesser<int>(x1, y1) << endl;//模板---显式实例化
+#pragma endregion
+#pragma region	lambda
+	//lambda函数表达式（匿名函数）：auto 函数名=[capture](parameters)->return-type{body}
+	//直接通过函数名调用
+	//[捕获从句]（形参列表）-> 类型说明符｛函数体｝指明返回类型
+	//[捕获从句]（形参列表)｛函数体｝未指明返回类型，自动识别
+	/*
+	[]      // 沒有定义任何变量。使用未定义变量会引发错误。
+	[x, &y] // x以传值方式传入（默认），y以引用方式传入。
+	[&]     // 任何被使用到的外部变量都隐式地以引用方式加以引用。
+	[=]     // 任何被使用到的外部变量都隐式地以传值方式加以引用。
+	[&, x]  // x显式地以传值方式加以引用。其余变量以引用方式加以引用。
+	[=, &z] // z显式地以引用方式加以引用。其余变量以传值方式加以引用。
+	[this]：通过引用捕获当前对象（其实是复制指针）；
+	[*this]：通过传值方式捕获当前对象；
+
+	*/
+	//lambda表达式无法修改通过复制形式捕捉的变量，因为函数调用运算符的重载方法是const属性的。
+	//左侧返回值、参数，右侧所执行的功能，即函数体
+	//无参数，无返回值：
+
+	auto m1 = [](){ cout << "Hello World" << endl; };
+	getchar();
+	m1;
+	int x2 = 10;
+	auto add_x = [x2](int a) mutable { x2 *= 2; return a + x2; };  // 复制捕捉x
+	std::cout << add_x(10) << endl; // 输出 30
+
+
+#pragma endregion
+	
+
+    system("pause");
+	return 0;
+}
+template <typename T>
+void Swap(T &a, T &b)
+{
+	T temp;
+	temp = a;
+	a = b;
+	b = temp;
+
+}
+template <typename T>
+void Swap(T a[], T b[],int n)
+{
+	T temp;
+	for (int i = 0; i < n; i++)
+	{
+	temp = a[i];
+	a[i] = b[i];
+	b[i] = temp;
+	}	
+}
+void Show(int a[])
+{
+	cout << a[0] << a[1] << "/";
+	cout << a[2] << a[3] << "/";
+	for (int i = 4; i < Lim; i++)
+		cout << a[i];
+		cout << endl;
+
+}
+//模板的局限性:数据类型本身不符合的运算，如数组的整体赋值（结构可以整体赋值），结构的比较等等
+template<>void Swap<job>(job &j1, job &j2)
+{
+	double t1;
+	int t2;
+	t1 = j1.salary;
+	j1.salary = j2.salary;
+	j2.salary = t1;
+	t2 = j1.floor;
+	j1.floor = j2.floor;
+	j2.floor = t2;
+}
+void Show(job &j)
+{
+	cout << j.name << ": $" << j.salary
+		<< "on floor " << j.floor << endl;
+
+}
+/*
+标志	功能
+boolalpha	可以使用单词"true"和"false"进行输入/输出的布尔值.
+oct	用八进制格式显示数值.
+dec	用十进制格式显示数值.
+hex	用十六进制格式显示数值.
+left	输出调整为左对齐.
+right	输出调整为右对齐.
+scientific	用科学记数法显示浮点数.
+fixed	用正常的记数方法显示浮点数(与科学计数法相对应).
+showbase	输出时显示所有数值的基数.
+showpoint	显示小数点和额外的零，即使不需要.
+showpos	在非负数值前面显示"＋（正号）".
+skipws	当从一个流进行读取时，跳过空白字符(spaces, tabs, newlines).
+unitbuf	在每次插入以后，清空缓冲区.
+internal	将填充字符回到符号和数值之间.
+uppercase	以大写的形式显示科学记数法中的"e"和十六进制格式的"x".
+
+
+*/
